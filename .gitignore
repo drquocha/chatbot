@@ -1,0 +1,41 @@
+# Environment variables
+.env
+.env.local
+.env.production
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+
+# Instance folder
+instance/
+*.db
+*.sqlite3
+
+# Session files
+session_cookies.txt
+test_session.txt
+cookies.txt
+
+# Logs
+*.log
+logs/
+
+# macOS
+.DS_Store
+
+# Editor files
+.vscode/
+.idea/
+
+# Test files
+*_test.txt
+test_*.txt
+corrected_test.txt
+final_test.txt
+
+# Temporary files
+*.tmp
+*.temp
