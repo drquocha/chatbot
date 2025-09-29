@@ -6,6 +6,7 @@ beautifulsoup4==4.12.2
 reportlab==4.0.4
 sqlalchemy==2.0.23
 flask-sqlalchemy==3.1.1
+psycopg2-binary==2.9.7
+gunicorn==21.2.0
 uuid4==1.1.4
-datetime
 json5==0.9.14
