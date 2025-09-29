@@ -1,9 +1,6 @@
 [build]
 builder = "nixpacks"
 
-[build.nixpacksConfig]
-pythonVersion = "3.11"
-
 [deploy]
 startCommand = "gunicorn medical_app:app --bind 0.0.0.0:$PORT"
 healthcheckPath = "/health"
