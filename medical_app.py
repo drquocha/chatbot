@@ -13,9 +13,15 @@ load_dotenv()
 app = Flask(__name__)
 app.config['SECRET_KEY'] = os.getenv('SECRET_KEY', 'medical-chatbot-secret-key')
 
-# Database configuration - Force SQLite for now
-print("DEBUG: Forcing SQLite database")
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///medical_chatbot.db'
+# Database configuration - Force SQLite for now (ignore Railway DATABASE_URL)
+database_url = os.getenv('CUSTOM_DATABASE_URL')  # Use custom variable instead of DATABASE_URL
+print(f"DEBUG: CUSTOM_DATABASE_URL = {database_url}")
+if database_url and database_url.strip():
+    print(f"DEBUG: Using custom database: {database_url}")
+    app.config['SQLALCHEMY_DATABASE_URI'] = database_url
+else:
+    print("DEBUG: Using SQLite database")
+    app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///medical_chatbot.db'
 
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
