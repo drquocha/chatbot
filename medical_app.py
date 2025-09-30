@@ -13,17 +13,9 @@ load_dotenv()
 app = Flask(__name__)
 app.config['SECRET_KEY'] = os.getenv('SECRET_KEY', 'medical-chatbot-secret-key')
 
-# Database configuration - Railway PostgreSQL support
-database_url = os.getenv('DATABASE_URL')
-print(f"DEBUG: DATABASE_URL = {database_url}")
-if database_url and database_url.strip() and not database_url.startswith('postgresql://postgres:password@localhost'):
-    # Production - Railway PostgreSQL (only if valid)
-    print(f"DEBUG: Using PostgreSQL: {database_url}")
-    app.config['SQLALCHEMY_DATABASE_URI'] = database_url
-else:
-    # Development - SQLite (fallback for invalid DATABASE_URL)
-    print("DEBUG: Using SQLite fallback")
-    app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///medical_chatbot.db'
+# Database configuration - Force SQLite for now
+print("DEBUG: Forcing SQLite database")
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///medical_chatbot.db'
 
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
