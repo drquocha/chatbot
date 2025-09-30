@@ -14,11 +14,12 @@ app = Flask(__name__)
 app.config['SECRET_KEY'] = os.getenv('SECRET_KEY', 'medical-chatbot-secret-key')
 
 # Database configuration - Railway PostgreSQL support
-if os.getenv('DATABASE_URL'):
-    # Production - Railway PostgreSQL
-    app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('DATABASE_URL')
+database_url = os.getenv('DATABASE_URL')
+if database_url and database_url.strip() and not database_url.startswith('postgresql://postgres:password@localhost'):
+    # Production - Railway PostgreSQL (only if valid)
+    app.config['SQLALCHEMY_DATABASE_URI'] = database_url
 else:
-    # Development - SQLite
+    # Development - SQLite (fallback for invalid DATABASE_URL)
     app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///medical_chatbot.db'
 
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
