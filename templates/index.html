@@ -3,8 +3,22 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Simple Chatbot</title>
+    <title>Bác sĩ Tiêu hóa AI</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans:wght@400;600&display=swap" rel="stylesheet">
     <style>
+        :root {
+            --primary-color: #007a8a; /* Màu xanh y tế */
+            --secondary-color: #f0f7f8; /* Màu nền xám rất nhạt */
+            --text-color: #333;
+            --light-text-color: #666;
+            --border-color: #e0e0e0;
+            --white-color: #fff;
+            --user-msg-bg: var(--primary-color);
+            --bot-msg-bg: #e9ecef;
+        }
+
         * {
             margin: 0;
             padding: 0;
@@ -12,31 +26,84 @@
         }
 
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            height: 100vh;
+            font-family: 'Noto Sans', sans-serif;
+            background-color: var(--secondary-color);
+            color: var(--text-color);
             display: flex;
             justify-content: center;
             align-items: center;
+            height: 100vh;
         }
 
+        .main-container {
+            display: flex;
+            width: 95%;
+            max-width: 1200px;
+            height: 90vh;
+            background: var(--white-color);
+            border-radius: 20px;
+            box-shadow: 0 10px 50px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        /* --- Sidebar --- */
+        .sidebar {
+            width: 320px;
+            background: linear-gradient(180deg, var(--primary-color) 0%, #005f6b 100%);
+            color: var(--white-color);
+            padding: 40px 30px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .doctor-profile {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .doctor-profile .avatar {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            border: 4px solid var(--white-color);
+            margin-bottom: 20px;
+            object-fit: cover;
+        }
+
+        .doctor-profile h2 {
+            margin-bottom: 5px;
+        }
+
+        .doctor-profile p {
+            font-size: 0.9rem;
+            opacity: 0.8;
+        }
+        
+        .disclaimer {
+            margin-top: auto;
+            font-size: 0.75rem;
+            background: rgba(255,255,255,0.1);
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+            opacity: 0.9;
+        }
+
+        /* --- Chat Container --- */
         .chat-container {
-            width: 90%;
-            max-width: 800px;
-            height: 80vh;
-            background: white;
-            border-radius: 15px;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            flex: 1;
             display: flex;
             flex-direction: column;
         }
 
         .chat-header {
-            background: #667eea;
-            color: white;
             padding: 20px;
-            border-radius: 15px 15px 0 0;
-            text-align: center;
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        .chat-header h1 {
+            font-size: 1.5rem;
+            color: var(--primary-color);
         }
 
         .chat-messages {
@@ -49,43 +116,64 @@
         }
 
         .message {
-            max-width: 70%;
+            max-width: 75%;
+            display: flex;
+            align-items: flex-end;
+            gap: 10px;
+        }
+        
+        .message-content {
             padding: 12px 16px;
             border-radius: 18px;
             word-wrap: break-word;
+            line-height: 1.5;
         }
 
         .user-message {
             align-self: flex-end;
-            background: #667eea;
-            color: white;
+        }
+        
+        .user-message .message-content {
+            background: var(--user-msg-bg);
+            color: var(--white-color);
+            border-bottom-right-radius: 5px;
         }
 
         .bot-message {
             align-self: flex-start;
-            background: #f1f1f1;
-            color: #333;
+        }
+
+        .bot-message .message-content {
+            background: var(--bot-msg-bg);
+            color: var(--text-color);
+            border-bottom-left-radius: 5px;
+        }
+
+        .bot-message .avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            object-fit: cover;
         }
 
         .chat-input {
             display: flex;
             padding: 20px;
-            background: #f8f9fa;
-            border-radius: 0 0 15px 15px;
+            border-top: 1px solid var(--border-color);
             gap: 10px;
         }
 
         #messageInput {
             flex: 1;
-            padding: 12px;
-            border: 2px solid #e0e0e0;
+            padding: 12px 20px;
+            border: 2px solid var(--border-color);
             border-radius: 25px;
             outline: none;
-            font-size: 16px;
+            font-size: 1rem;
         }
 
         #messageInput:focus {
-            border-color: #667eea;
+            border-color: var(--primary-color);
         }
 
         button {
@@ -93,53 +181,41 @@
             border: none;
             border-radius: 25px;
             cursor: pointer;
-            font-weight: bold;
+            font-weight: 600;
+            font-size: 1rem;
+            background-color: var(--primary-color);
+            color: var(--white-color);
             transition: background-color 0.3s;
         }
 
-        #sendBtn {
-            background: #667eea;
-            color: white;
-        }
-
-        #sendBtn:hover {
-            background: #5a6fd8;
-        }
-
-        #clearBtn {
-            background: #ff6b6b;
-            color: white;
-        }
-
-        #clearBtn:hover {
-            background: #ff5252;
-        }
-
-        .loading {
-            align-self: flex-start;
-            background: #f1f1f1;
-            color: #666;
-            font-style: italic;
+        button:hover {
+            background-color: #005f6b;
         }
     </style>
 </head>
 <body>
-    <div class="chat-container">
-        <div class="chat-header">
-            <h1>🤖 Simple Chatbot</h1>
-            <p>Xin chào! Tôi có thể giúp gì cho bạn?</p>
-        </div>
-
-        <div class="chat-messages" id="chatMessages">
-            <div class="message bot-message">
-                Xin chào! Tôi là chatbot đơn giản. Hãy hỏi tôi bất cứ điều gì! 😊
+    <div class="main-container">
+        <div class="sidebar">
+            <div class="doctor-profile">
+                <img src="https://placehold.co/120x120/e0e0e0/333.png?text=BS" alt="Bác sĩ" class="avatar">
+                <h2>BS. Nguyễn Văn A</h2>
+                <p>Chuyên khoa Tiêu hóa & Nội soi</p>
+            </div>
+            <div class="disclaimer">
+                <strong>Tuyên bố miễn trừ trách nhiệm:</strong> Chatbot này chỉ cung cấp thông tin tham khảo, không thay thế cho chẩn đoán y tế trực tiếp.
             </div>
         </div>
-
-        <div class="chat-input">
-            <input type="text" id="messageInput" placeholder="Nhập tin nhắn của bạn..." autocomplete="off">
-            <button id="sendBtn">Gửi</button>
-            <button id="clearBtn">Xóa</button>
+        <div class="chat-container">
+            <div class="chat-header">
+                <h1>Trợ lý AI Tiêu hóa</h1>
+            </div>
+            <div class="chat-messages" id="chatMessages">
+                <!-- Messages will be dynamically inserted here -->
+            </div>
+            <div class="chat-input">
+                <input type="text" id="messageInput" placeholder="Nhập câu hỏi của bạn về tiêu hóa...">
+                <button id="sendBtn">Gửi</button>
+            </div>
         </div>
     </div>
 
@@ -147,29 +223,40 @@
         const chatMessages = document.getElementById('chatMessages');
         const messageInput = document.getElementById('messageInput');
         const sendBtn = document.getElementById('sendBtn');
-        const clearBtn = document.getElementById('clearBtn');
+
+        const BOT_AVATAR_URL = 'https://placehold.co/40x40/007a8a/ffffff.png?text=AI';
 
         function addMessage(content, isUser = false) {
             const messageDiv = document.createElement('div');
             messageDiv.className = `message ${isUser ? 'user-message' : 'bot-message'}`;
-            messageDiv.textContent = content;
+
+            const contentDiv = document.createElement('div');
+            contentDiv.className = 'message-content';
+            contentDiv.textContent = content;
+
+            if (isUser) {
+                messageDiv.appendChild(contentDiv);
+            } else {
+                const avatarImg = document.createElement('img');
+                avatarImg.src = BOT_AVATAR_URL;
+                avatarImg.className = 'avatar';
+                messageDiv.appendChild(avatarImg);
+                messageDiv.appendChild(contentDiv);
+            }
+            
             chatMessages.appendChild(messageDiv);
             chatMessages.scrollTop = chatMessages.scrollHeight;
         }
 
         function showLoading() {
-            const loadingDiv = document.createElement('div');
-            loadingDiv.className = 'message loading';
-            loadingDiv.textContent = 'Đang suy nghĩ...';
-            loadingDiv.id = 'loading';
-            chatMessages.appendChild(loadingDiv);
-            chatMessages.scrollTop = chatMessages.scrollHeight;
+            addMessage("Bác sĩ AI đang soạn câu trả lời...");
         }
 
         function hideLoading() {
-            const loadingDiv = document.getElementById('loading');
-            if (loadingDiv) {
-                loadingDiv.remove();
+            const messages = chatMessages.querySelectorAll('.message-content');
+            const lastMessage = messages[messages.length - 1];
+            if (lastMessage && lastMessage.textContent === "Bác sĩ AI đang soạn câu trả lời...") {
+                lastMessage.parentElement.remove();
             }
         }
 
@@ -184,48 +271,25 @@
             try {
                 const response = await fetch('/chat', {
                     method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
+                    headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ message: message })
                 });
-
                 const data = await response.json();
                 hideLoading();
-
-                if (data.error) {
-                    addMessage(`Lỗi: ${data.error}`);
-                } else {
-                    addMessage(data.response);
-                }
+                addMessage(data.response || "Có lỗi xảy ra, vui lòng thử lại.");
             } catch (error) {
                 hideLoading();
-                addMessage('Lỗi kết nối. Vui lòng thử lại.');
-            }
-        }
-
-        async function clearHistory() {
-            try {
-                await fetch('/clear', { method: 'POST' });
-                chatMessages.innerHTML = `
-                    <div class="message bot-message">
-                        Lịch sử hội thoại đã được xóa. Bắt đầu cuộc trò chuyện mới! 😊
-                    </div>
-                `;
-            } catch (error) {
-                addMessage('Lỗi khi xóa lịch sử.');
+                addMessage('Lỗi kết nối. Không thể nhận được phản hồi từ bác sĩ AI.');
             }
         }
 
         sendBtn.addEventListener('click', sendMessage);
-        clearBtn.addEventListener('click', clearHistory);
-
         messageInput.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') {
-                sendMessage();
-            }
+            if (e.key === 'Enter') sendMessage();
         });
 
+        // Initial welcome message
+        addMessage("Xin chào! Tôi là trợ lý AI chuyên về tiêu hóa. Bạn có câu hỏi gì cần giải đáp không?");
         messageInput.focus();
     </script>
 </body>

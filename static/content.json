@@ -1,0 +1,20 @@
+{
+    "header": {
+        "title": "🤖 Simple Chatbot",
+        "subtitle": "Xin chào! Tôi có thể giúp gì cho bạn?"
+    },
+    "input": {
+        "placeholder": "Nhập tin nhắn của bạn..."
+    },
+    "buttons": {
+        "send": "Gửi",
+        "clear": "Xóa"
+    },
+    "messages": {
+        "welcome": "Xin chào! Tôi là chatbot được xây dựng bởi Gemini. Hãy hỏi tôi bất cứ điều gì! 😊",
+        "loading": "Đang suy nghĩ...",
+        "connection_error": "Lỗi kết nối. Vui lòng thử lại.",
+        "clear_success": "Lịch sử hội thoại đã được xóa. Bắt đầu cuộc trò chuyện mới! 😊",
+        "clear_error": "Lỗi khi xóa lịch sử."
+    }
+}

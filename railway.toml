@@ -1,5 +1,7 @@
 [deploy]
-startCommand = "gunicorn medical_app:app --bind 0.0.0.0:$PORT"
-healthcheckPath = "/health"
-healthcheckTimeout = 300
-restartPolicyType = "always"
+startCommand = "gunicorn app:app"
+healthcheckPath = "/"
+restartPolicyType = "ON_FAILURE"
+
+[build]
+builder = "NIXPACKS"
