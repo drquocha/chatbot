@@ -27,7 +27,7 @@
 
         body {
             font-family: 'Noto Sans', sans-serif;
-            background-color: var(--secondary-color);
+background-image: url("{{ url_for('static', filename='images/background.jpeg') }}");
             color: var(--text-color);
             display: flex;
             justify-content: center;
@@ -197,7 +197,7 @@
     <div class="main-container">
         <div class="sidebar">
             <div class="doctor-profile">
-                <img src="https://placehold.co/120x120/e0e0e0/333.png?text=BS" alt="Bác sĩ" class="avatar">
+                <img src="{{ url_for('static', filename='images/bot-avatar.jpg') }}" alt="Bác sĩ" class="avatar">
                 <h2>BS. Nguyễn Văn A</h2>
                 <p>Chuyên khoa Tiêu hóa & Nội soi</p>
             </div>
@@ -224,7 +224,7 @@
         const messageInput = document.getElementById('messageInput');
         const sendBtn = document.getElementById('sendBtn');
 
-        const BOT_AVATAR_URL = 'https://placehold.co/40x40/007a8a/ffffff.png?text=AI';
+        const BOT_AVATAR_URL = '{{ url_for("static", filename="images/bot-avatar.jpg") }}';
 
         function addMessage(content, isUser = false) {
             const messageDiv = document.createElement('div');
