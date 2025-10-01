@@ -13,42 +13,86 @@ class SimpleChatbot:
         self.conversation_history.append({"role": role, "content": content})
 
     def needs_web_search(self, user_message: str) -> bool:
-        """Check if user message needs web search for current information"""
-        search_keywords = [
-            'hiện tại', 'bây giờ', 'mới nhất', 'cập nhật', 'tình hình',
-            'tổng bí thư', 'chủ tịch nước', 'thủ tướng', 'lãnh đạo',
-            'tin tức', 'tin mới', 'hôm nay', 'năm 2024', 'năm 2025',
-            'ai đang', 'giờ có', 'giờ là', 'đang là', 'có bao nhiêu',
-            'web search', 'tìm kiếm', 'search', 'ngày mấy'
-        ]
-        message_lower = user_message.lower()
-        result = any(keyword in message_lower for keyword in search_keywords)
-        print(f"DEBUG: Message '{user_message}' needs search: {result}")
-        return result
+        """Use LLM to intelligently decide if web search is needed"""
+        try:
+            decision_prompt = f"""Câu hỏi này có cần tìm kiếm thông tin CẬP NHẬT trên Internet không?
+
+Chỉ trả lời: "CÓ" hoặc "KHÔNG"
+
+CẦN tìm kiếm khi:
+- Hỏi về lãnh đạo hiện tại, chính phủ hiện tại
+- Giá cả hiện tại, thống kê mới nhất
+- Tin tức, sự kiện đang diễn ra
+- Thời tiết hôm nay/hiện tại
+
+KHÔNG cần tìm kiếm khi:
+- Hỏi CÁCH LÀM gì đó (nấu ăn, sửa chữa, học tập)
+- Hỏi CÔNG THỨC món ăn
+- Giải thích khái niệm, định nghĩa
+- Kiến thức tổng quát không đổi theo thời gian
+
+Câu hỏi: "{user_message}"
+
+Trả lời:"""
+
+            response = self.client.chat.completions.create(
+                model="gpt-3.5-turbo",
+                messages=[{"role": "user", "content": decision_prompt}],
+                max_tokens=10,
+                temperature=0.1
+            )
+
+            decision = response.choices[0].message.content.strip().upper()
+            needs_search = "CÓ" in decision
+
+            print(f"DEBUG: LLM decision for '{user_message}': {decision} -> needs_search: {needs_search}")
+            return needs_search
+
+        except Exception as e:
+            print(f"DEBUG: LLM decision failed, falling back to keywords: {e}")
+            # Fallback to keyword-based approach if LLM fails
+            search_keywords = [
+                'hiện tại', 'bây giờ', 'mới nhất', 'cập nhật', 'tình hình',
+                'tổng bí thư', 'chủ tịch nước', 'thủ tướng', 'lãnh đạo',
+                'tin tức', 'tin mới', 'hôm nay', 'năm 2024', 'năm 2025',
+                'ai đang', 'giờ có', 'giờ là', 'đang là', 'có bao nhiêu',
+                'web search', 'tìm kiếm', 'search', 'ngày mấy'
+            ]
+            message_lower = user_message.lower()
+            return any(keyword in message_lower for keyword in search_keywords)
 
     def get_response(self, user_message: str) -> str:
         self.add_message("user", user_message)
 
         try:
             # Check if we need web search for current information
-            if self.needs_web_search(user_message):
+            needs_search = self.needs_web_search(user_message)
+
+            if needs_search:
                 print("🔍 Đang tìm kiếm thông tin mới nhất...")
                 search_results = self.web_searcher.search_and_summarize(user_message)
 
-                # Create enhanced prompt with search results
+                # CRITICAL FIX: Preserve conversation history and enhance the last message
+                # Get all conversation history except the last user message
+                messages_for_api = self.conversation_history[:-1].copy()
+
+                # Create enhanced prompt that includes search results
                 enhanced_prompt = f"""Dựa trên thông tin tìm kiếm mới nhất từ web:
 
 {search_results}
 
 Hãy trả lời câu hỏi: {user_message}
 
-Lưu ý: Ưu tiên thông tin từ kết quả tìm kiếm nếu có, và trả lời bằng tiếng Việt một cách chính xác, cập nhật nhất."""
+Lưu ý: Ưu tiên thông tin từ kết quả tìm kiếm nếu có, kết hợp với ngữ cảnh cuộc trò chuyện trước đó, và trả lời bằng tiếng Việt một cách chính xác, cập nhất."""
 
-                messages = [
-                    {"role": "system", "content": "Bạn là một trợ lý AI thông minh, luôn cung cấp thông tin chính xác và cập nhật nhất."},
-                    {"role": "user", "content": enhanced_prompt}
-                ]
+                # Add the enhanced prompt as the new user message
+                messages_for_api.append({"role": "user", "content": enhanced_prompt})
+                messages = messages_for_api
+
+                # Update conversation history to reflect what was actually sent to the API
+                self.conversation_history[-1] = {"role": "user", "content": enhanced_prompt}
             else:
+                # Use normal conversation history
                 messages = self.conversation_history
 
             response = self.client.chat.completions.create(
