@@ -6,15 +6,18 @@ from typing import Dict, List, Tuple, Optional
 from datetime import datetime
 from models import MedicalData, MedicalPrompts, PatientSession, db
 from telegram_notifier import send_telegram_message
+from language_manager import LanguageManager
 
 class MedicalChatbot:
     def __init__(self, api_key: str = None):
         self.client = openai.OpenAI(api_key=api_key or os.getenv("OPENAI_API_KEY"))
         self.prompts = MedicalPrompts()
+        self.language_manager = LanguageManager()
 
-    def create_session(self) -> str:
+    def create_session(self, language='vi') -> str:
         """Create new patient session"""
         session = PatientSession()
+        session.language = language if language in ['vi', 'en'] else 'vi'
         session.set_patient_data(MedicalData.get_initial_structure())
         session.set_conversation_history([])
 
@@ -27,10 +30,11 @@ class MedicalChatbot:
         """Get patient session by ID"""
         return PatientSession.query.get(session_id)
 
-    def check_red_flags(self, message: str) -> bool:
+    def check_red_flags(self, message: str, language='vi') -> bool:
         """Check for emergency symptoms"""
         message_lower = message.lower()
-        for flag in self.prompts.RED_FLAGS:
+        red_flags = self.language_manager.get_red_flags(language)
+        for flag in red_flags:
             if flag in message_lower:
                 return True
         return False
@@ -97,10 +101,13 @@ RESPONSE FORMAT: JSON hợp lệ với message, action, clinical_reasoning
         if not session:
             return {"error": "Session not found"}
 
+        # Get session language
+        session_language = session.language or 'vi'
+
         # Check for emergency symptoms
-        if self.check_red_flags(user_message):
+        if self.check_red_flags(user_message, session_language):
             return {
-                "message": self.prompts.EMERGENCY_RESPONSE,
+                "message": self.language_manager.get_emergency_response(session_language),
                 "action": "emergency",
                 "emergency": True
             }
@@ -130,7 +137,7 @@ RESPONSE FORMAT: JSON hợp lệ với message, action, clinical_reasoning
                 })
 
         messages = [
-            {"role": "system", "content": self.prompts.SYSTEM_PROMPT}
+            {"role": "system", "content": self.language_manager.get_system_prompt(session_language)}
         ]
 
         # Add context messages
@@ -188,7 +195,7 @@ RESPONSE FORMAT: JSON hợp lệ với message, action, clinical_reasoning
                     ai_response["action"] = "show_summary"
                 elif any(keyword in message_lower for keyword in positive_responses):
                     ai_response["action"] = "continue"
-                    ai_response["message"] = "Vâng, bạn hãy chia sẻ thêm thông tin đó với tôi."
+                    ai_response["message"] = self.language_manager.get_workflow_message(session_language, 'additional_info')
                 else:
                     # Extract any additional information provided
                     ai_response["action"] = "show_summary"
@@ -200,28 +207,28 @@ RESPONSE FORMAT: JSON hợp lệ với message, action, clinical_reasoning
 
                 if any(keyword in message_lower for keyword in confirmation_positive) or any(keyword in message_lower for keyword in completion_keywords):
                     ai_response["action"] = "complete"
-                    ai_response["message"] = "Cảm ơn bạn đã xác nhận thông tin. Chúng ta đã hoàn thành việc thu thập bệnh sử. Báo cáo đã được tạo và gửi cho bác sĩ."
+                    ai_response["message"] = self.language_manager.get_workflow_message(session_language, 'completion_confirmed')
                 elif any(keyword in message_lower for keyword in confirmation_negative):
                     ai_response["action"] = "need_more_info"
-                    ai_response["message"] = "Tôi hiểu. Bạn có thể cho tôi biết thêm thông tin cần bổ sung hoặc sửa đổi không?"
+                    ai_response["message"] = self.language_manager.get_workflow_message(session_language, 'need_correction')
                 else:
                     # Treat any response as completion request
                     ai_response["action"] = "complete"
-                    ai_response["message"] = "Cảm ơn bạn. Chúng ta đã hoàn thành việc thu thập bệnh sử. Báo cáo đã được tạo và gửi cho bác sĩ."
+                    ai_response["message"] = self.language_manager.get_workflow_message(session_language, 'general_completion')
 
             # General completion check for any stage
             elif any(keyword in message_lower for keyword in completion_keywords):
                 if current_status in ['active', 'need_more_info']:
                     ai_response["action"] = "final_question"
-                    ai_response["message"] = "Tôi hiểu bạn muốn kết thúc. Trước khi hoàn tất, còn câu gì bạn muốn chia sẻ thêm với mình không?"
+                    ai_response["message"] = self.language_manager.get_workflow_message(session_language, 'final_question')
                 else:
                     ai_response["action"] = "complete"
-                    ai_response["message"] = "Cảm ơn bạn đã cung cấp thông tin. Chúng ta đã hoàn thành việc thu thập bệnh sử."
+                    ai_response["message"] = self.language_manager.get_workflow_message(session_language, 'simple_completion')
 
             # Auto-complete if conversation too long, but follow proper workflow
             elif conversation_length > 15:
                 ai_response["action"] = "final_question"
-                ai_response["message"] = "Cảm ơn bạn đã cung cấp nhiều thông tin hữu ích. Còn câu gì bạn muốn chia sẻ thêm với mình không?"
+                ai_response["message"] = self.language_manager.get_workflow_message(session_language, 'lengthy_conversation')
 
             # Add AI response to conversation
             conversation.append({

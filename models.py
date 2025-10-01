@@ -14,6 +14,7 @@ class PatientSession(db.Model):
     status = db.Column(db.String(20), default='active')  # active, completed, abandoned
     current_stage = db.Column(db.Integer, default=1)  # 1-6 stages
     progress_percentage = db.Column(db.Integer, default=0)
+    language = db.Column(db.String(5), default='vi')  # Language preference: 'vi' or 'en'
 
     # Patient data
     patient_data = db.Column(db.Text)  # JSON string

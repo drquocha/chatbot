@@ -4,6 +4,7 @@ from dotenv import load_dotenv
 from models import db, PatientSession, MedicalData
 from medical_chatbot import MedicalChatbot
 from report_generator import MedicalReportGenerator
+from language_manager import LanguageManager
 import uuid
 import tempfile
 from datetime import datetime
@@ -28,9 +29,10 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 # Initialize database
 db.init_app(app)
 
-# Initialize chatbot and report generator
+# Initialize chatbot, report generator, and language manager
 chatbot = MedicalChatbot()
 report_generator = MedicalReportGenerator()
+language_manager = LanguageManager()
 
 @app.before_request
 def create_tables():
@@ -39,19 +41,36 @@ def create_tables():
         create_tables.created = True
 
 @app.route('/')
-def index():
-    return render_template('medical_index.html')
+@app.route('/<language>')
+def index(language='vi'):
+    # Validate language
+    if language not in ['vi', 'en']:
+        language = 'vi'
+
+    # Get UI translations
+    ui_text = language_manager.get_ui_text(language)
+
+    return render_template('medical_index_multilang.html', language=language, ui_text=ui_text)
 
 @app.route('/start-session', methods=['POST'])
 def start_session():
     """Start new medical data collection session"""
     try:
-        session_id = chatbot.create_session()
+        # Get language from request
+        data = request.get_json() or {}
+        language = data.get('language', 'vi')
+        if language not in ['vi', 'en']:
+            language = 'vi'
+
+        session_id = chatbot.create_session(language)
         flask_session['session_id'] = session_id
+
+        # Get initial greeting message in the selected language
+        initial_message = language_manager.get_workflow_message(language, 'initial_greeting')
 
         return jsonify({
             'session_id': session_id,
-            'message': 'Xin chào! Tôi là trợ lý y tế sẽ giúp bạn thu thập thông tin bệnh sử trước khi gặp bác sĩ. Quá trình này sẽ mất khoảng 10-15 phút và hoàn toàn bảo mật. Chúng ta bắt đầu nhé!\\n\\nTrước tiên, xin cho biết họ tên đầy đủ của bạn?',
+            'message': initial_message,
             'stage': 1,
             'progress': 0
         })
@@ -194,6 +213,37 @@ def admin_sessions():
 
     except Exception as e:
         return jsonify({'error': f'Lỗi lấy danh sách phiên: {str(e)}'}), 500
+
+@app.route('/change-language', methods=['POST'])
+def change_language():
+    """Change session language"""
+    try:
+        data = request.get_json()
+        session_id = flask_session.get('session_id')
+        new_language = data.get('language', 'vi')
+
+        if not session_id:
+            return jsonify({'error': 'Session not found'}), 404
+
+        if new_language not in ['vi', 'en']:
+            return jsonify({'error': 'Invalid language'}), 400
+
+        # Update session language
+        session = PatientSession.query.get(session_id)
+        if session:
+            session.language = new_language
+            db.session.commit()
+
+            return jsonify({
+                'success': True,
+                'language': new_language,
+                'message': language_manager.get_workflow_message(new_language, 'initial_greeting')
+            })
+        else:
+            return jsonify({'error': 'Session not found'}), 404
+
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
 
 @app.route('/health')
 def health_check():

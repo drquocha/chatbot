@@ -1,0 +1,748 @@
+<!DOCTYPE html>
+<html lang="{{ language }}">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ ui_text.title }}</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .medical-container {
+            width: 100%;
+            max-width: 900px;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            min-height: 80vh;
+        }
+
+        .medical-header {
+            background: linear-gradient(135deg, #4A90E2 0%, #357ABD 100%);
+            color: white;
+            padding: 25px;
+            text-align: center;
+            position: relative;
+        }
+
+        .language-switcher {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: rgba(255, 255, 255, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 20px;
+            padding: 8px 15px;
+            color: white;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s ease;
+        }
+
+        .language-switcher:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: translateY(-2px);
+        }
+
+        .medical-header h1 {
+            font-size: 24px;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .medical-header p {
+            font-size: 16px;
+            opacity: 0.9;
+            margin-bottom: 15px;
+        }
+
+        .progress-container {
+            background: rgba(255,255,255,0.2);
+            border-radius: 10px;
+            padding: 8px;
+            margin-top: 10px;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: rgba(255,255,255,0.3);
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: #4CAF50;
+            transition: width 0.3s ease;
+            width: 0%;
+        }
+
+        .progress-text {
+            text-align: center;
+            margin-top: 8px;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .stage-indicator {
+            display: flex;
+            justify-content: center;
+            margin-top: 15px;
+            gap: 10px;
+        }
+
+        .stage-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.3);
+            transition: all 0.3s ease;
+        }
+
+        .stage-dot.completed {
+            background: #4CAF50;
+        }
+
+        .stage-dot.current {
+            background: #FFC107;
+            transform: scale(1.2);
+        }
+
+        .chat-section {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .chat-messages {
+            flex: 1;
+            padding: 25px;
+            overflow-y: auto;
+            max-height: 500px;
+            background: #f8f9fa;
+        }
+
+        .welcome-screen {
+            text-align: center;
+            padding: 40px 20px;
+            color: #666;
+        }
+
+        .welcome-screen .icon {
+            font-size: 60px;
+            margin-bottom: 20px;
+            color: #4A90E2;
+        }
+
+        .welcome-screen h2 {
+            color: #333;
+            margin-bottom: 15px;
+            font-weight: 600;
+        }
+
+        .welcome-screen p {
+            font-size: 16px;
+            line-height: 1.6;
+            margin-bottom: 20px;
+        }
+
+        .start-button {
+            background: linear-gradient(135deg, #4A90E2 0%, #357ABD 100%);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 25px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(74, 144, 226, 0.3);
+        }
+
+        .start-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(74, 144, 226, 0.4);
+        }
+
+        .message {
+            margin-bottom: 20px;
+            max-width: 85%;
+            padding: 15px 20px;
+            border-radius: 18px;
+            word-wrap: break-word;
+            line-height: 1.5;
+        }
+
+        .user-message {
+            align-self: flex-end;
+            margin-left: auto;
+            background: linear-gradient(135deg, #4A90E2 0%, #357ABD 100%);
+            color: white;
+        }
+
+        .bot-message {
+            align-self: flex-start;
+            background: white;
+            color: #333;
+            border: 1px solid #e0e0e0;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        .emergency-message {
+            background: linear-gradient(135deg, #FF5722 0%, #D32F2F 100%);
+            color: white;
+            border: none;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.02); }
+            100% { transform: scale(1); }
+        }
+
+        .chat-input-section {
+            padding: 20px;
+            background: white;
+            border-top: 1px solid #e0e0e0;
+        }
+
+        .quick-buttons {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .quick-btn {
+            background: #f0f0f0;
+            border: 1px solid #ddd;
+            padding: 8px 16px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s ease;
+        }
+
+        .quick-btn:hover {
+            background: #4A90E2;
+            color: white;
+            border-color: #4A90E2;
+        }
+
+        .input-group {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        #messageInput {
+            flex: 1;
+            padding: 15px 20px;
+            border: 2px solid #e0e0e0;
+            border-radius: 25px;
+            outline: none;
+            font-size: 16px;
+            transition: border-color 0.3s ease;
+        }
+
+        #messageInput:focus {
+            border-color: #4A90E2;
+        }
+
+        .send-btn {
+            background: linear-gradient(135deg, #4A90E2 0%, #357ABD 100%);
+            color: white;
+            border: none;
+            padding: 15px 25px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            min-width: 80px;
+        }
+
+        .send-btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(74, 144, 226, 0.3);
+        }
+
+        .send-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+            justify-content: center;
+        }
+
+        .action-btn {
+            background: white;
+            color: #4A90E2;
+            border: 2px solid #4A90E2;
+            padding: 10px 20px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .action-btn:hover {
+            background: #4A90E2;
+            color: white;
+        }
+
+        .loading {
+            color: #666;
+            font-style: italic;
+            opacity: 0.8;
+        }
+
+        .typing-indicator {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 15px 20px;
+            background: white;
+            border-radius: 18px;
+            border: 1px solid #e0e0e0;
+            max-width: 120px;
+            margin-bottom: 20px;
+        }
+
+        .typing-dots {
+            display: flex;
+            gap: 4px;
+        }
+
+        .typing-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #4A90E2;
+            animation: typing 1.4s infinite ease-in-out;
+        }
+
+        .typing-dot:nth-child(1) { animation-delay: -0.32s; }
+        .typing-dot:nth-child(2) { animation-delay: -0.16s; }
+
+        @keyframes typing {
+            0%, 80%, 100% {
+                transform: scale(0);
+                opacity: 0.5;
+            }
+            40% {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+
+        .completed-session {
+            text-align: center;
+            padding: 30px;
+            background: #f8f9fa;
+            border-radius: 15px;
+            margin: 20px;
+        }
+
+        .completed-session .check-icon {
+            font-size: 60px;
+            color: #4CAF50;
+            margin-bottom: 20px;
+        }
+
+        @media (max-width: 768px) {
+            .medical-container {
+                margin: 10px;
+                min-height: 90vh;
+            }
+
+            .medical-header {
+                padding: 20px;
+            }
+
+            .medical-header h1 {
+                font-size: 20px;
+            }
+
+            .chat-messages {
+                padding: 15px;
+            }
+
+            .message {
+                max-width: 95%;
+                padding: 12px 16px;
+            }
+
+            .quick-buttons {
+                justify-content: flex-start;
+            }
+
+            .action-buttons {
+                flex-direction: column;
+            }
+
+            .language-switcher {
+                position: static;
+                margin-bottom: 15px;
+                display: inline-block;
+            }
+        }
+
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="medical-container">
+        <div class="medical-header">
+            <div class="language-switcher" onclick="toggleLanguage()">
+                {{ ui_text.language_switch }}
+            </div>
+            <h1>🏥 {{ ui_text.title }}</h1>
+            <p>{{ ui_text.subtitle }}</p>
+
+            <div class="progress-container hidden" id="progressContainer">
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progressFill"></div>
+                </div>
+                <div class="progress-text" id="progressText">0% {{ ui_text.progress_text }}</div>
+
+                <div class="stage-indicator" id="stageIndicator">
+                    <div class="stage-dot" data-stage="1"></div>
+                    <div class="stage-dot" data-stage="2"></div>
+                    <div class="stage-dot" data-stage="3"></div>
+                    <div class="stage-dot" data-stage="4"></div>
+                    <div class="stage-dot" data-stage="5"></div>
+                    <div class="stage-dot" data-stage="6"></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="chat-section">
+            <div class="chat-messages" id="chatMessages">
+                <div class="welcome-screen" id="welcomeScreen">
+                    <div class="icon">🩺</div>
+                    <h2>{{ ui_text.welcome_title }}</h2>
+                    <p>{{ ui_text.welcome_description }}</p>
+                    <p><strong>{{ ui_text.welcome_note.split(':')[0] }}:</strong> {{ ui_text.welcome_note.split(':')[1] }}</p>
+                    <button class="start-button" onclick="startSession()">{{ ui_text.start_button }}</button>
+                </div>
+            </div>
+
+            <div class="chat-input-section hidden" id="inputSection">
+                <div class="quick-buttons" id="quickButtons">
+                    <span class="quick-btn" onclick="sendQuickMessage('{{ ui_text.quick_buttons.yes }}')">{{ ui_text.quick_buttons.yes }}</span>
+                    <span class="quick-btn" onclick="sendQuickMessage('{{ ui_text.quick_buttons.no }}')">{{ ui_text.quick_buttons.no }}</span>
+                    <span class="quick-btn" onclick="sendQuickMessage('{{ ui_text.quick_buttons.not_remember }}')">{{ ui_text.quick_buttons.not_remember }}</span>
+                    <span class="quick-btn" onclick="sendQuickMessage('{{ ui_text.quick_buttons.not_have }}')">{{ ui_text.quick_buttons.not_have }}</span>
+                </div>
+
+                <div class="input-group">
+                    <input type="text" id="messageInput" placeholder="{{ ui_text.input_placeholder }}" autocomplete="off">
+                    <button class="send-btn" id="sendBtn" onclick="sendMessage()">{{ ui_text.send_button }}</button>
+                </div>
+
+                <div class="action-buttons hidden" id="actionButtons">
+                    <a href="#" class="action-btn" id="downloadBtn" onclick="downloadReport()">📄 {{ ui_text.download_pdf }}</a>
+                    <a href="#" class="action-btn" id="jsonBtn" onclick="downloadJson()">📋 {{ ui_text.export_json }}</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let sessionId = null;
+        let isProcessing = false;
+        let currentLanguage = '{{ language }}';
+
+        // UI Text object for dynamic updates
+        const uiText = {
+            vi: {
+                typing_indicator: 'Đang soạn tin...',
+                progress_text: 'hoàn thành',
+                completed_title: 'Hoàn thành thu thập thông tin!',
+                completed_description: 'Cảm ơn bạn đã cung cấp thông tin. Bạn có thể tải báo cáo bệnh sử để mang theo khi đi khám.',
+                send_button: 'Gửi',
+                language_switch: 'English'
+            },
+            en: {
+                typing_indicator: 'Typing...',
+                progress_text: 'complete',
+                completed_title: 'Information Collection Complete!',
+                completed_description: 'Thank you for providing the information. You can download the medical history report to bring with you to your appointment.',
+                send_button: 'Send',
+                language_switch: 'Tiếng Việt'
+            }
+        };
+
+        async function toggleLanguage() {
+            const newLanguage = currentLanguage === 'vi' ? 'en' : 'vi';
+
+            try {
+                const response = await fetch('/change-language', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ language: newLanguage })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    // Reload page with new language
+                    window.location.href = `/${newLanguage}`;
+                } else {
+                    // If no session yet, just reload page with new language
+                    window.location.href = `/${newLanguage}`;
+                }
+            } catch (error) {
+                // Fallback: just reload with new language
+                window.location.href = `/${newLanguage}`;
+            }
+        }
+
+        async function startSession() {
+            try {
+                const response = await fetch('/start-session', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ language: currentLanguage })
+                });
+
+                const data = await response.json();
+
+                if (data.error) {
+                    alert('Error: ' + data.error);
+                    return;
+                }
+
+                sessionId = data.session_id;
+
+                // Hide welcome screen and show chat
+                document.getElementById('welcomeScreen').classList.add('hidden');
+                document.getElementById('inputSection').classList.remove('hidden');
+                document.getElementById('progressContainer').classList.remove('hidden');
+
+                // Add first message
+                addMessage(data.message, false);
+                updateProgress(data.progress, data.stage);
+
+                // Focus input
+                document.getElementById('messageInput').focus();
+
+            } catch (error) {
+                alert('Connection error: ' + error.message);
+            }
+        }
+
+        async function sendMessage() {
+            if (isProcessing) return;
+
+            const input = document.getElementById('messageInput');
+            const message = input.value.trim();
+
+            if (!message) return;
+
+            isProcessing = true;
+            input.value = '';
+            updateSendButton(true);
+
+            // Add user message
+            addMessage(message, true);
+
+            // Show typing indicator
+            showTypingIndicator();
+
+            try {
+                const response = await fetch('/chat', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ message: message })
+                });
+
+                const data = await response.json();
+
+                // Remove typing indicator
+                hideTypingIndicator();
+
+                if (data.error) {
+                    addMessage('Error: ' + data.error, false);
+                    return;
+                }
+
+                // Add bot response
+                addMessage(data.message, false, data.emergency);
+
+                // Update progress
+                if (data.stage && data.progress !== undefined) {
+                    updateProgress(data.progress, data.stage);
+                }
+
+                // Check if completed
+                if (data.completed) {
+                    showCompletedSession();
+                }
+
+            } catch (error) {
+                hideTypingIndicator();
+                addMessage('Connection error: ' + error.message, false);
+            } finally {
+                isProcessing = false;
+                updateSendButton(false);
+                input.focus();
+            }
+        }
+
+        function sendQuickMessage(text) {
+            document.getElementById('messageInput').value = text;
+            sendMessage();
+        }
+
+        function addMessage(content, isUser, isEmergency = false) {
+            const messagesContainer = document.getElementById('chatMessages');
+            const messageDiv = document.createElement('div');
+
+            let className = 'message ';
+            if (isUser) {
+                className += 'user-message';
+            } else if (isEmergency) {
+                className += 'emergency-message';
+            } else {
+                className += 'bot-message';
+            }
+
+            messageDiv.className = className;
+            messageDiv.innerHTML = content.replace(/\\n/g, '<br>');
+
+            messagesContainer.appendChild(messageDiv);
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        }
+
+        function showTypingIndicator() {
+            const messagesContainer = document.getElementById('chatMessages');
+            const typingDiv = document.createElement('div');
+            typingDiv.className = 'typing-indicator';
+            typingDiv.id = 'typingIndicator';
+            typingDiv.innerHTML = `
+                <span>${uiText[currentLanguage].typing_indicator}</span>
+                <div class="typing-dots">
+                    <div class="typing-dot"></div>
+                    <div class="typing-dot"></div>
+                    <div class="typing-dot"></div>
+                </div>
+            `;
+
+            messagesContainer.appendChild(typingDiv);
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        }
+
+        function hideTypingIndicator() {
+            const typingIndicator = document.getElementById('typingIndicator');
+            if (typingIndicator) {
+                typingIndicator.remove();
+            }
+        }
+
+        function updateProgress(percentage, currentStage) {
+            document.getElementById('progressFill').style.width = percentage + '%';
+            document.getElementById('progressText').textContent = percentage + '% ' + uiText[currentLanguage].progress_text;
+
+            // Update stage indicators
+            const dots = document.querySelectorAll('.stage-dot');
+            dots.forEach((dot, index) => {
+                const stage = index + 1;
+                dot.classList.remove('completed', 'current');
+
+                if (stage < currentStage) {
+                    dot.classList.add('completed');
+                } else if (stage === currentStage) {
+                    dot.classList.add('current');
+                }
+            });
+        }
+
+        function updateSendButton(disabled) {
+            const sendBtn = document.getElementById('sendBtn');
+            sendBtn.disabled = disabled;
+            sendBtn.textContent = disabled ? '...' : uiText[currentLanguage].send_button;
+        }
+
+        function showCompletedSession() {
+            const messagesContainer = document.getElementById('chatMessages');
+
+            const completedDiv = document.createElement('div');
+            completedDiv.className = 'completed-session';
+            completedDiv.innerHTML = `
+                <div class="check-icon">✅</div>
+                <h2>${uiText[currentLanguage].completed_title}</h2>
+                <p>${uiText[currentLanguage].completed_description}</p>
+            `;
+
+            messagesContainer.appendChild(completedDiv);
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+
+            // Show action buttons
+            document.getElementById('actionButtons').classList.remove('hidden');
+
+            // Hide input
+            document.getElementById('messageInput').disabled = true;
+            document.getElementById('sendBtn').disabled = true;
+        }
+
+        function downloadReport() {
+            if (sessionId) {
+                window.open(`/generate-report/${sessionId}`, '_blank');
+            }
+        }
+
+        function downloadJson() {
+            if (sessionId) {
+                window.open(`/export-json/${sessionId}`, '_blank');
+            }
+        }
+
+        // Enter key to send message
+        document.getElementById('messageInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter' && !isProcessing) {
+                sendMessage();
+            }
+        });
+
+        // Auto-resize chat area
+        window.addEventListener('resize', function() {
+            const messagesContainer = document.getElementById('chatMessages');
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        });
+    </script>
+</body>
+</html>
