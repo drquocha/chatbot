@@ -30,3 +30,7 @@ def clear_history():
 if __name__ == '__main__':
     port = int(os.environ.get('PORT', 8080))
     app.run(host='0.0.0.0', port=port)
+
+@app.route('/game')
+def game():
+    return app.send_static_file('game/index.html')

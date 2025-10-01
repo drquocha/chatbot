@@ -1,0 +1,180 @@
+/* =============================================================================
+   RESPONSIVE DESIGN - MOBILE & TABLET
+   ========================================================================== */
+
+/* Responsive design */
+@media (max-width: 768px) {
+    .container {
+        padding: 10px;
+    }
+
+    .game-area {
+        grid-template-columns: 1fr;
+        gap: 15px;
+    }
+
+    header {
+        max-width: 95%;
+        min-width: 500px;
+        padding: 10px 15px;
+    }
+
+    header h1 {
+        font-size: 1.2em;
+    }
+
+    .header-controls {
+        gap: 15px;
+    }
+
+    .game-info {
+        gap: 8px;
+        font-size: 0.75em;
+    }
+
+    .dataset-controls {
+        gap: 6px;
+        padding: 5px;
+    }
+
+    .dataset-controls select {
+        min-width: 80px;
+        font-size: 0.65em;
+        padding: 3px 6px;
+    }
+
+    .dataset-controls button {
+        padding: 3px 8px;
+        font-size: 0.65em;
+    }
+
+    .dataset-controls input[type="file"] {
+        max-width: 100px;
+        font-size: 0.6em;
+        padding: 3px 4px;
+    }
+
+    .game-info {
+        flex-direction: column;
+        gap: 8px;
+        font-size: 1em;
+    }
+
+    .controls {
+        gap: 10px;
+    }
+
+    .control-row {
+        gap: 10px;
+    }
+
+    button {
+        flex: 1;
+        min-width: 120px;
+    }
+
+    .secondary-controls {
+        gap: 15px;
+        flex-wrap: wrap;
+    }
+
+    .grid-selector {
+        min-width: 70px;
+        font-size: 0.9em;
+    }
+
+    .font-controls {
+        padding: 3px 6px;
+        gap: 6px;
+    }
+
+    .font-btn {
+        min-width: 30px;
+        height: 30px;
+        padding: 4px 8px;
+        font-size: 1em;
+    }
+
+    .font-size-display {
+        font-size: 0.9em;
+        min-width: 20px;
+    }
+
+    .items-list {
+        grid-template-columns: repeat(2, 1fr);
+        grid-template-rows: repeat(8, 1fr);
+        min-height: 400px;
+    }
+}
+
+@media (max-width: 480px) {
+    header {
+        max-width: 95%;
+        min-width: 320px;
+        padding: 8px 12px;
+    }
+
+    .header-content {
+        flex-direction: column;
+        gap: 8px;
+        align-items: center;
+    }
+
+    header h1 {
+        font-size: 1.1em;
+    }
+
+    .header-controls {
+        flex-direction: column;
+        gap: 6px;
+        width: 100%;
+    }
+
+    .game-info {
+        justify-content: center;
+        gap: 15px;
+        font-size: 0.7em;
+    }
+
+    .dataset-controls {
+        justify-content: center;
+        gap: 5px;
+        padding: 4px;
+    }
+
+    .dataset-controls select,
+    .dataset-controls button,
+    .dataset-controls input[type="file"] {
+        font-size: 0.65em;
+        padding: 3px 6px;
+    }
+
+    .dataset-controls select {
+        min-width: 70px;
+    }
+
+    .dataset-controls input[type="file"] {
+        max-width: 80px;
+    }
+
+    .panel {
+        padding: 15px;
+    }
+
+    .items-list {
+        grid-template-columns: repeat(1, 1fr);
+        grid-template-rows: repeat(15, 1fr);
+        min-height: 600px;
+    }
+
+    .item {
+        padding: 8px;
+        font-size: 0.8em;
+        min-height: 60px;
+    }
+
+    button {
+        padding: 10px 16px;
+        font-size: 0.9em;
+    }
+}

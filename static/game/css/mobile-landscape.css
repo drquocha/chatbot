@@ -1,0 +1,371 @@
+/* =============================================================================
+   MOBILE LANDSCAPE OPTIMIZATION
+   ========================================================================== */
+
+/* iPhone 13/14/15 Landscape Specific (390px height) */
+@media screen and (max-height: 410px) and (min-width: 800px) and (orientation: landscape) {
+    .container {
+        padding: 6px;
+        min-height: auto;
+        max-width: 100%;
+    }
+
+    .game-area {
+        display: flex !important;
+        flex-direction: row !important;
+        gap: 8px;
+        margin-bottom: 8px;
+        min-height: auto;
+        height: calc(100vh - 120px);
+    }
+
+    .panel {
+        flex: 1 !important;
+        width: calc(50% - 4px) !important;
+        max-width: calc(50% - 4px) !important;
+        height: 100%;
+        overflow: hidden;
+        padding: 8px;
+        border-radius: 10px;
+    }
+
+    .items-list {
+        height: calc(100% - 40px);
+        max-height: none;
+        overflow-y: auto;
+        gap: 4px;
+    }
+
+    .panel h2 {
+        font-size: 1em;
+        margin-bottom: 8px;
+        text-align: center;
+    }
+
+    header {
+        padding: 4px 8px;
+        margin-bottom: 6px;
+    }
+
+    .controls {
+        gap: 6px;
+        margin-bottom: 6px;
+    }
+
+    button:not(.font-btn) {
+        padding: 4px 8px;
+        font-size: 0.8em;
+    }
+
+    .item {
+        padding: 6px;
+        font-size: 0.75em;
+        min-height: 40px;
+        border-radius: 6px;
+        touch-action: manipulation;
+        -webkit-tap-highlight-color: transparent;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        word-wrap: break-word;
+        hyphens: auto;
+    }
+
+    /* Adjust grid layouts for landscape */
+    .items-list.grid-3x3 {
+        grid-template-columns: repeat(3, 1fr);
+        grid-template-rows: repeat(5, minmax(35px, 1fr));
+    }
+
+    .items-list.grid-3x4 {
+        grid-template-columns: repeat(3, 1fr);
+        grid-template-rows: repeat(5, minmax(32px, 1fr));
+    }
+
+    .items-list.grid-4x3 {
+        grid-template-columns: repeat(4, 1fr);
+        grid-template-rows: repeat(4, minmax(35px, 1fr));
+    }
+
+    .items-list.grid-4x4 {
+        grid-template-columns: repeat(4, 1fr);
+        grid-template-rows: repeat(4, minmax(32px, 1fr));
+    }
+
+    .items-list.grid-5x3 {
+        grid-template-columns: repeat(5, 1fr);
+        grid-template-rows: repeat(3, minmax(40px, 1fr));
+    }
+}
+
+/* Mobile Landscape Optimization */
+@media screen and (max-height: 500px) and (orientation: landscape) {
+    .container {
+        padding: 8px;
+        min-height: auto;
+    }
+
+    header {
+        max-width: 100%;
+        min-width: auto;
+        padding: 6px 12px;
+        margin-bottom: 10px;
+    }
+
+    header h1 {
+        font-size: 1em;
+    }
+
+    .header-controls {
+        gap: 10px;
+    }
+
+    .game-info {
+        gap: 8px;
+        font-size: 0.65em;
+    }
+
+    .dataset-controls {
+        gap: 4px;
+        padding: 3px;
+    }
+
+    .dataset-controls select,
+    .dataset-controls button,
+    .dataset-controls input[type="file"] {
+        font-size: 0.6em;
+        padding: 2px 4px;
+    }
+
+    .dataset-controls select {
+        min-width: 60px;
+    }
+
+    .dataset-controls input[type="file"] {
+        max-width: 70px;
+    }
+
+    .game-area {
+        gap: 8px;
+        margin-bottom: 8px;
+        min-height: auto;
+        display: flex;
+        flex-direction: row;
+        justify-content: space-between;
+        align-items: flex-start;
+    }
+
+    .panel {
+        padding: 8px;
+        border-radius: 10px;
+        flex: 1;
+        width: calc(50% - 4px);
+        max-width: calc(50% - 4px);
+    }
+
+    .panel h2 {
+        font-size: 1em;
+        margin-bottom: 8px;
+    }
+
+    .items-list {
+        gap: 4px;
+        min-height: 200px;
+        grid-auto-rows: minmax(35px, auto);
+        max-height: 240px;
+        overflow-y: auto;
+    }
+
+    /* Ensure all grid layouts work well in landscape */
+    .items-list.grid-2x2 {
+        grid-template-rows: repeat(2, minmax(35px, 1fr));
+    }
+
+    .items-list.grid-3x3 {
+        grid-template-rows: repeat(3, minmax(35px, 1fr));
+    }
+
+    .items-list.grid-3x4 {
+        grid-template-rows: repeat(4, minmax(30px, 1fr));
+    }
+
+    .items-list.grid-4x3 {
+        grid-template-rows: repeat(3, minmax(35px, 1fr));
+    }
+
+    .items-list.grid-4x4 {
+        grid-template-rows: repeat(4, minmax(30px, 1fr));
+    }
+
+    .items-list.grid-5x3 {
+        grid-template-rows: repeat(3, minmax(35px, 1fr));
+    }
+
+    .items-list.grid-custom {
+        grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
+        grid-auto-rows: minmax(35px, auto);
+    }
+
+    .item {
+        padding: 4px;
+        font-size: 0.7em;
+        min-height: 35px;
+        border-radius: 6px;
+        touch-action: manipulation;
+        -webkit-tap-highlight-color: transparent;
+    }
+
+    .controls {
+        gap: 6px;
+        margin-bottom: 8px;
+    }
+
+    .control-row {
+        gap: 6px;
+    }
+
+    button:not(.font-btn) {
+        padding: 6px 12px;
+        font-size: 0.8em;
+        border-radius: 6px;
+    }
+
+    .font-controls {
+        padding: 2px 4px;
+        gap: 4px;
+    }
+
+    .font-btn {
+        min-width: 25px;
+        height: 25px;
+        font-size: 0.9em;
+    }
+
+    .font-size-display {
+        font-size: 0.8em;
+        min-width: 18px;
+    }
+
+    .grid-selector {
+        min-width: 50px;
+        font-size: 0.8em;
+        padding: 4px 8px;
+    }
+
+    .feedback {
+        padding: 8px;
+        font-size: 0.9em;
+        margin-bottom: 8px;
+    }
+}
+
+/* Very Small Landscape Screens (Phone landscape) */
+@media screen and (max-height: 420px) and (orientation: landscape) {
+    header {
+        padding: 4px 8px;
+        margin-bottom: 6px;
+    }
+
+    .header-content {
+        gap: 6px;
+    }
+
+    header h1 {
+        font-size: 0.9em;
+    }
+
+    .game-info {
+        font-size: 0.6em;
+        gap: 6px;
+    }
+
+    .dataset-controls select,
+    .dataset-controls button,
+    .dataset-controls input[type="file"] {
+        font-size: 0.55em;
+        padding: 1px 3px;
+    }
+
+    .game-area {
+        gap: 6px;
+        margin-bottom: 6px;
+        display: flex;
+        flex-direction: row;
+        justify-content: space-between;
+        align-items: flex-start;
+    }
+
+    .panel {
+        padding: 6px;
+        flex: 1;
+        width: calc(50% - 3px);
+        max-width: calc(50% - 3px);
+    }
+
+    .panel h2 {
+        font-size: 0.9em;
+        margin-bottom: 6px;
+    }
+
+    .items-list {
+        gap: 3px;
+        min-height: 160px;
+        grid-auto-rows: minmax(28px, auto);
+        max-height: 180px;
+        overflow-y: auto;
+    }
+
+    /* Ultra compact grid layouts for very small landscape */
+    .items-list.grid-2x2 {
+        grid-template-rows: repeat(2, minmax(28px, 1fr));
+    }
+
+    .items-list.grid-3x3 {
+        grid-template-rows: repeat(3, minmax(25px, 1fr));
+    }
+
+    .items-list.grid-3x4 {
+        grid-template-rows: repeat(4, minmax(22px, 1fr));
+    }
+
+    .items-list.grid-4x3 {
+        grid-template-rows: repeat(3, minmax(25px, 1fr));
+    }
+
+    .items-list.grid-4x4 {
+        grid-template-rows: repeat(4, minmax(22px, 1fr));
+    }
+
+    .items-list.grid-5x3 {
+        grid-template-rows: repeat(3, minmax(25px, 1fr));
+    }
+
+    .items-list.grid-custom {
+        grid-template-columns: repeat(auto-fit, minmax(60px, 1fr));
+        grid-auto-rows: minmax(25px, auto);
+    }
+
+    .item {
+        padding: 3px;
+        font-size: 0.6em;
+        min-height: 28px;
+        touch-action: manipulation;
+        -webkit-tap-highlight-color: transparent;
+    }
+
+    .controls {
+        gap: 4px;
+        margin-bottom: 6px;
+    }
+
+    button:not(.font-btn) {
+        padding: 4px 8px;
+        font-size: 0.7em;
+    }
+
+    .feedback {
+        padding: 6px;
+        font-size: 0.8em;
+    }
+}

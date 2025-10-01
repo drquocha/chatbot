@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>🎯 Offline Vocabulary Matching Game</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/main.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="header-content">
+                <h1>🎯 Offline Vocabulary Game</h1>
+                <div class="header-controls">
+                    <div class="game-info">
+                        <span id="score">Score: 0</span>
+                        <span id="progress">0/0</span>
+                    </div>
+                    <div class="dataset-controls">
+                        <select id="dataset-select">
+                            <option value="">Dataset...</option>
+                        </select>
+                        <button id="load-dataset-btn" disabled>Load</button>
+                        <input type="file" id="csv-upload" accept=".csv" />
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <main class="game-area">
+            <div class="panel concepts-panel">
+                <h2>💡 Concepts</h2>
+                <div id="concepts-list" class="items-list">
+                    <!-- Concepts will be populated here -->
+                </div>
+            </div>
+
+            <div class="panel definitions-panel">
+                <h2>📖 Definitions</h2>
+                <div id="definitions-list" class="items-list">
+                    <!-- Definitions will be populated here -->
+                </div>
+            </div>
+        </main>
+
+        <div class="controls">
+            <div class="control-row main-controls">
+                <button id="new-game-btn">🎮 New Game</button>
+                <button id="hint-btn" disabled>💡 Hint</button>
+                <button id="reset-btn">🔄 Reset Round</button>
+                <button id="heatmap-btn">📊 Progress Heatmap</button>
+            </div>
+            <div class="control-row data-controls">
+                <button id="export-csv-btn">📄 Export CSV</button>
+                <button id="export-json-btn">📊 Export JSON</button>
+                <button id="reset-fsrs-btn">🗑️ Reset FSRS Data</button>
+                <button id="debug-storage-btn">🔍 Debug Storage</button>
+            </div>
+            <div class="control-row secondary-controls">
+                <select id="grid-size-select" class="grid-selector">
+                    <option value="2x2">2×2</option>
+                    <option value="3x3" selected>3×3</option>
+                    <option value="3x4">3×4</option>
+                    <option value="4x3">4×3</option>
+                    <option value="4x4">4×4</option>
+                    <option value="5x3">5×3</option>
+                    <option value="custom">Auto</option>
+                </select>
+                <div class="font-controls">
+                    <button id="font-size-decrease-btn" class="font-btn">-</button>
+                    <span id="font-size-display" class="font-size-display">14</span>
+                    <button id="font-size-increase-btn" class="font-btn">+</button>
+                </div>
+            </div>
+        </div>
+
+        <div id="feedback" class="feedback hidden">
+            <span id="feedback-text"></span>
+        </div>
+
+    </div>
+
+    <script>
+        console.log('📜 Starting to load scripts...');
+        window.addEventListener('error', function(e) {
+            console.error('🚨 Script error:', e.error, e.filename, e.lineno);
+        });
+    </script>
+    <script src="js/audio-manager.js"></script>
+    <script>console.log('✅ audio-manager.js loaded');</script>
+    <script src="js/data-manager.js"></script>
+    <script>console.log('✅ data-manager.js loaded');</script>
+    <script src="js/ui-manager.js"></script>
+    <script>console.log('✅ ui-manager.js loaded');</script>
+    <script src="js/game-engine.js"></script>
+    <script>console.log('✅ game-engine.js loaded');</script>
+    <script src="js/fsrs-data-logger.js"></script>
+    <script>console.log('✅ fsrs-data-logger.js loaded');</script>
+    <script src="js/fsrs-engine.js"></script>
+    <script>console.log('✅ fsrs-engine.js loaded, FSRSEngine:', typeof FSRSEngine);</script>
+    <script src="js/adaptive-learning-client.js"></script>
+    <script>console.log('✅ adaptive-learning-client.js loaded');</script>
+    <script src="js/heatmap-visualizer.js"></script>
+    <script>console.log('✅ heatmap-visualizer.js loaded');</script>
+    <script src="js/main.js"></script>
+    <script>console.log('✅ main.js loaded');</script>
+</body>
+</html>

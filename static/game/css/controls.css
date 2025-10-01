@@ -1,0 +1,198 @@
+/* =============================================================================
+   CONTROLS & BUTTONS
+   ========================================================================== */
+
+/* Controls */
+.controls {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 15px;
+    margin-bottom: 20px;
+}
+
+.control-row {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 15px;
+    flex-wrap: wrap;
+}
+
+/* Main control row for primary game buttons */
+.main-controls {
+    justify-content: center;
+}
+
+/* Secondary control row for settings */
+.secondary-controls {
+    justify-content: center;
+    gap: 20px;
+}
+
+/* Data controls specific styling */
+.data-controls {
+    gap: 8px;
+}
+
+.data-controls button {
+    font-size: 0.8em;
+    padding: 6px 10px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border: none;
+    border-radius: 6px;
+    color: white;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.data-controls button:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(102, 126, 234, 0.3);
+}
+
+.data-controls button:active {
+    transform: translateY(0);
+}
+
+#reset-fsrs-btn {
+    background: linear-gradient(135deg, #ff6b6b 0%, #ee5a52 100%);
+}
+
+#reset-fsrs-btn:hover {
+    box-shadow: 0 4px 8px rgba(255, 107, 107, 0.3);
+}
+
+/* Grid selector styling */
+.grid-selector {
+    background: rgba(255, 255, 255, 0.9);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    border-radius: 8px;
+    padding: 8px 12px;
+    font-size: 0.95em;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    color: #4a5568;
+    min-width: 80px;
+    backdrop-filter: blur(10px);
+}
+
+.grid-selector:hover {
+    background: white;
+    border-color: rgba(102, 126, 234, 0.5);
+}
+
+.grid-selector:focus {
+    outline: none;
+    border-color: #667eea;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.2);
+}
+
+/* Font controls container */
+.font-controls {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(255, 255, 255, 0.15);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 8px;
+    padding: 4px 8px;
+    backdrop-filter: blur(10px);
+}
+
+/* Font size buttons */
+.font-btn {
+    background: rgba(255, 255, 255, 0.9);
+    color: #4a5568;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    padding: 6px 12px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 1.1em;
+    font-weight: 700;
+    transition: all 0.3s ease;
+    min-width: 35px;
+    height: 35px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.font-btn:hover:not(:disabled) {
+    background: white;
+    border-color: rgba(102, 126, 234, 0.5);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.font-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none;
+}
+
+/* Font size display */
+.font-size-display {
+    font-size: 1em;
+    font-weight: 600;
+    color: rgba(255, 255, 255, 0.9);
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+    min-width: 25px;
+    text-align: center;
+    user-select: none;
+}
+
+/* Main buttons */
+button:not(.font-btn) {
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    color: white;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    padding: 14px 28px;
+    border-radius: 12px;
+    cursor: pointer;
+    font-size: 1em;
+    font-weight: 600;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+    position: relative;
+    overflow: hidden;
+}
+
+button:not(.font-btn)::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(
+        90deg,
+        transparent,
+        rgba(255, 255, 255, 0.2),
+        transparent
+    );
+    transition: left 0.5s ease;
+}
+
+button:not(.font-btn):hover::before {
+    left: 100%;
+}
+
+button:not(.font-btn):hover:not(:disabled) {
+    background: linear-gradient(135deg, #5a67d8, #667eea);
+    transform: translateY(-3px);
+    box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4);
+}
+
+button:not(.font-btn):disabled {
+    background: #a0aec0;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+}
+
+button:focus {
+    outline: 3px solid #4299e1;
+    outline-offset: 2px;
+}

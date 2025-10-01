@@ -1,0 +1,28 @@
+/* =============================================================================
+   VOCABULARY MATCHING GAME - MAIN STYLESHEET
+   Professional modular CSS architecture
+   ========================================================================== */
+
+/* Import all CSS modules */
+@import url('base.css');
+@import url('header.css');
+@import url('game-area.css');
+@import url('game-items.css');
+@import url('controls.css');
+@import url('heatmap.css');
+@import url('animations.css');
+@import url('responsive.css');
+@import url('mobile-landscape.css');
+
+/*
+   CSS Architecture Overview:
+   - base.css: Reset, body styles, container, background animations
+   - header.css: Header, navigation, dataset controls
+   - game-area.css: Main game layout, panels, grid systems
+   - game-items.css: Game items, interactions, states
+   - controls.css: Buttons, controls, font controls
+   - heatmap.css: Progress heatmap visualization, overlay, grid
+   - animations.css: Animations, effects, feedback
+   - responsive.css: Tablet and mobile responsive design
+   - mobile-landscape.css: Mobile landscape optimization
+*/

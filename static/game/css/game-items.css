@@ -1,0 +1,97 @@
+/* =============================================================================
+   GAME ITEMS & INTERACTIONS
+   ========================================================================== */
+
+/* Item styles */
+.item {
+    background: rgba(255, 255, 255, 0.95);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    border-radius: 12px;
+    padding: 12px;
+    cursor: pointer;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    font-size: 0.88em;
+    line-height: 1.4;
+    user-select: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    min-height: 85px;
+    overflow: hidden;
+    position: relative;
+    backdrop-filter: blur(10px);
+    color: #374151;
+    font-weight: 500;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    animation: fadeIn 0.3s ease forwards;
+}
+
+.item::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(135deg,
+        rgba(255, 255, 255, 0.1),
+        rgba(255, 255, 255, 0.05)
+    );
+    border-radius: 12px;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.item:hover {
+    transform: translateY(-4px) scale(1.02);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+    border-color: rgba(255, 255, 255, 0.5);
+}
+
+.item:hover::before {
+    opacity: 1;
+}
+
+.item.selected {
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    color: white;
+    border-color: rgba(255, 255, 255, 0.4);
+    transform: translateY(-4px) scale(1.05);
+    box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+    font-weight: 600;
+}
+
+.item.matched {
+    background: linear-gradient(135deg, #48bb78, #38a169);
+    color: white;
+    border-color: rgba(255, 255, 255, 0.4);
+    cursor: default;
+    opacity: 0.9;
+    box-shadow: 0 4px 12px rgba(72, 187, 120, 0.3);
+}
+
+.item.disappearing {
+    animation: disappearPair 0.8s ease forwards;
+}
+
+.item.frozen {
+    background: #e2e8f0;
+    color: #a0aec0;
+    cursor: not-allowed;
+    border-color: #cbd5e0;
+    pointer-events: none;
+}
+
+.item.incorrect {
+    background: linear-gradient(135deg, #e53e3e, #c53030);
+    color: white;
+    border-color: rgba(255, 255, 255, 0.4);
+    animation: shake 0.6s ease-in-out;
+    box-shadow: 0 4px 12px rgba(229, 62, 62, 0.4);
+}
+
+.item:focus {
+    outline: 3px solid #4299e1;
+    outline-offset: 2px;
+}

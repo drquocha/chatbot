@@ -1,0 +1,98 @@
+/* =============================================================================
+   GAME AREA & PANELS
+   ========================================================================== */
+
+/* Main game area */
+.game-area {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    flex: 1;
+    margin-bottom: 20px;
+    width: 100%;
+}
+
+.game-area.full-width {
+    grid-template-columns: 1fr 1fr;
+    gap: 15px;
+}
+
+.panel {
+    background: rgba(255, 255, 255, 0.12);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 20px;
+    padding: 25px;
+    box-shadow:
+        0 8px 32px rgba(0, 0, 0, 0.1),
+        inset 0 1px 0 rgba(255, 255, 255, 0.2);
+    backdrop-filter: blur(20px);
+    position: relative;
+    overflow: hidden;
+}
+
+.panel::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: linear-gradient(90deg,
+        transparent,
+        rgba(255, 255, 255, 0.3),
+        transparent
+    );
+}
+
+.panel h2 {
+    text-align: center;
+    margin-bottom: 25px;
+    color: rgba(255, 255, 255, 0.9);
+    font-size: 1.6em;
+    font-weight: 600;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    position: relative;
+    z-index: 1;
+}
+
+.items-list {
+    display: grid;
+    gap: 10px;
+    min-height: 400px;
+    grid-auto-rows: minmax(80px, auto);
+}
+
+/* Dynamic grid layouts based on game size */
+.items-list.grid-2x2 {
+    grid-template-columns: repeat(2, 1fr);
+    grid-template-rows: repeat(2, 1fr);
+}
+
+.items-list.grid-3x3 {
+    grid-template-columns: repeat(3, 1fr);
+    grid-template-rows: repeat(3, 1fr);
+}
+
+.items-list.grid-3x4 {
+    grid-template-columns: repeat(3, 1fr);
+    grid-template-rows: repeat(4, 1fr);
+}
+
+.items-list.grid-4x3 {
+    grid-template-columns: repeat(4, 1fr);
+    grid-template-rows: repeat(3, 1fr);
+}
+
+.items-list.grid-4x4 {
+    grid-template-columns: repeat(4, 1fr);
+    grid-template-rows: repeat(4, 1fr);
+}
+
+.items-list.grid-5x3 {
+    grid-template-columns: repeat(5, 1fr);
+    grid-template-rows: repeat(3, 1fr);
+}
+
+.items-list.grid-custom {
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+}
