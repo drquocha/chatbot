@@ -7,12 +7,15 @@ from datetime import datetime
 from models import MedicalData, MedicalPrompts, PatientSession, db
 from telegram_notifier import send_telegram_message
 from language_manager import LanguageManager
+from web_search import WebSearcher
+import threading
 
 class MedicalChatbot:
     def __init__(self, api_key: str = None):
         self.client = openai.OpenAI(api_key=api_key or os.getenv("OPENAI_API_KEY"))
         self.prompts = MedicalPrompts()
         self.language_manager = LanguageManager()
+        self.web_searcher = WebSearcher()
 
     def create_session(self, language='vi') -> str:
         """Create new patient session"""
@@ -65,22 +68,49 @@ class MedicalChatbot:
         # Recent conversation context
         recent_messages = [msg for msg in conversation[-6:] if isinstance(msg, dict) and msg.get('role') in ['user', 'assistant']]
 
-        prompt = f"""
+        # Check for PubMed summary
+        pubmed_summary = patient_data.get('pubmed_summary')
+        pubmed_section = ""
+        if pubmed_summary and pubmed_summary not in ["pending", "failed"]:
+            pubmed_section = f"""
+
+
+TÓM TẮT TỪ Y VĂN (PUBMED):
+Dựa trên triệu chứng chính, đây là các hướng tiếp cận và chẩn đoán phân biệt tiềm năng:
+{pubmed_summary}
+Sử dụng thông tin này để hỏi các câu hỏi mục tiêu nhằm xác nhận hoặc loại trừ các khả năng trên.
+"""
+
+        # Safe formatting
+        symptoms_text = []
+        for s in symptoms:
+            if isinstance(s, dict):
+                symptoms_text.append(s.get('name', ''))
+            else:
+                symptoms_text.append(str(s))
+
+        # Build prompt safely without f-strings
+        patient_info = demographics.get('name', '') + ', ' + demographics.get('age', '') + ', ' + demographics.get('gender', '')
+        symptoms_info = ', '.join(symptoms_text)
+        patient_data_str = json.dumps(patient_data, ensure_ascii=False, indent=2)
+        conversation_str = json.dumps(recent_messages[-4:], ensure_ascii=False, indent=2)
+
+        prompt = """
 TÌNH HÌNH LÂM SÀNG HIỆN TẠI:
-Bệnh nhân: {demographics.get('name', '')}, {demographics.get('age', '')}, {demographics.get('gender', '')}
-Vấn đề chính: {chief_complaint}
-Triệu chứng: {', '.join([s.get('name', '') if isinstance(s, dict) else str(s) for s in symptoms])}
+Bệnh nhân: """ + patient_info + """
+Vấn đề chính: """ + chief_complaint + """
+Triệu chứng: """ + symptoms_info + pubmed_section + """
 
 DỮ LIỆU ĐÃ THU THẬP:
-{json.dumps(patient_data, ensure_ascii=False, indent=2)}
+""" + patient_data_str + """
 
 CUỘC TRÒ CHUYỆN GẦN ĐÂY:
-{json.dumps(recent_messages[-4:], ensure_ascii=False, indent=2)}
+""" + conversation_str + """
 
 CLINICAL REASONING:
 Dựa vào thông tin hiện có, hãy quyết định câu hỏi tiếp theo theo nguyên tắc:
 1. An toàn trước tiên - kiểm tra red flags nếu cần
-2. Giá trị thông tin cao - hỏi để phân biệt chẩn đoán
+2. Giá trị thông tin cao - hỏi để phân biệt chẩn đoán (sử dụng gợi ý từ PubMed nếu có)
 3. Hiệu quả - tránh hỏi lại hoặc không liên quan
 
 DISCRIMINATING QUESTIONS dựa vào chief complaint:
@@ -91,7 +121,31 @@ DISCRIMINATING QUESTIONS dựa vào chief complaint:
 
 CHỈ hỏi tiền sử/thuốc/gia đình khi LIÊN QUAN trực tiếp đến vấn đề hiện tại.
 
-RESPONSE FORMAT: JSON hợp lệ với message, action, clinical_reasoning
+🚨 NHIỆM VỤ BẮT BUỘC - TRÍCH XUẤT DỮ LIỆU:
+Đây là quy tắc BẮNG BUỘC, KHÔNG THỂ BỎ QUA:
+
+1. Sau MỖI câu trả lời của bệnh nhân, bạn PHẢI phân tích và trích xuất TOÀN BỘ thông tin y tế
+2. Thông tin bao gồm: tên, tuổi, triệu chứng, thời gian, vị trí, mức độ, tiền sử, thuốc...
+3. Đặt tất cả vào trường "data" với cấu trúc chuẩn:
+
+CHUẨN TRÍCH XUẤT:
+- Nếu bệnh nhân nói "tôi tên Quốc, 30 tuổi" → "demographics": {"name": "Quốc", "age": "30"}
+- Nếu bệnh nhân nói "đau bụng từ hôm qua" → "chief_complaint": {"main_complaint": "đau bụng", "duration": "từ hôm qua"}
+- Nếu bệnh nhân nói "sốt nhẹ, nôn" → "symptoms": [{"name": "sốt", "severity": "nhẹ"}, {"name": "nôn", "present": true}]
+
+⚠️ LƯU Ý: Nếu trường "data" trống hoặc không có, hệ thống sẽ mất hết thông tin!
+
+ĐỊNH DẠNG RESPONSE BẮT BUỘC:
+Trả về JSON với cấu trúc:
+- message: câu hỏi tiếp theo cho bệnh nhân
+- action: continue/final_question/show_summary/complete
+- clinical_reasoning: lý do lâm sàng của câu hỏi
+- data: object chứa thông tin trích xuất được
+
+VÍ DỤ CỤ THỂ:
+data phải có: demographics (name, age, gender), chief_complaint (main_complaint, duration), symptoms (name, severity, location), medical_history, medications
+
+QUAN TRỌNG: Trường "data" KHÔNG BAO GIỜ ĐƯỢC TRỐNG! Luôn phải có ít nhất thông tin vừa trích xuất được.
 """
         return prompt
 
@@ -137,7 +191,7 @@ RESPONSE FORMAT: JSON hợp lệ với message, action, clinical_reasoning
                 })
 
         messages = [
-            {"role": "system", "content": self.language_manager.get_system_prompt(session_language)}
+            {"role": "system", "content": self.get_clinical_prompt(patient_data, conversation)}
         ]
 
         # Add context messages
@@ -154,7 +208,12 @@ RESPONSE FORMAT: JSON hợp lệ với message, action, clinical_reasoning
             )
 
             try:
-                ai_response = json.loads(response.choices[0].message.content)
+                raw_response = response.choices[0].message.content
+                print(f"DEBUG: Raw AI response: {raw_response}")
+
+                ai_response = json.loads(raw_response)
+                print(f"DEBUG: Parsed AI response keys: {ai_response.keys()}")
+
                 # Ensure ai_response is a dictionary
                 if not isinstance(ai_response, dict):
                     ai_response = {
@@ -242,11 +301,36 @@ RESPONSE FORMAT: JSON hợp lệ với message, action, clinical_reasoning
             # Update patient data if provided by AI, or extract from conversation
             if ai_response.get("data"):
                 self.update_patient_data(patient_data, ai_response["data"])
+                session.set_patient_data(patient_data)  # CRITICAL: Save to session
+                print(f"DEBUG: Updated and saved patient data from AI")
             else:
                 # If AI didn't provide structured data, try to extract it ourselves
+                print(f"DEBUG: AI didn't provide data, extracting from message: '{user_message}'")
                 extracted_data = self.extract_data_from_message(user_message, patient_data)
+                print(f"DEBUG: Extracted data: {extracted_data}")
                 if extracted_data:
                     self.update_patient_data(patient_data, extracted_data)
+                    session.set_patient_data(patient_data)  # CRITICAL: Save to session
+                    print(f"DEBUG: Updated and saved patient data from extraction")
+
+            # === Start PubMed Search Thread ===
+            patient_data = session.get_patient_data() # Re-get the latest data
+            chief_complaint = patient_data.get('chief_complaint', {}).get('main_complaint')
+            
+            # Start search if a complaint exists and a search hasn't been started
+            if chief_complaint and 'pubmed_summary' not in patient_data:
+                # Add a placeholder to prevent starting multiple searches
+                patient_data['pubmed_summary'] = "pending"
+                session.set_patient_data(patient_data)
+                db.session.commit()
+
+                # Start the background search
+                thread = threading.Thread(
+                    target=self._search_and_store_pubmed_summary,
+                    args=(session.id, chief_complaint)
+                )
+                thread.start()
+            # =================================
 
             # Handle workflow actions
             completed = False
@@ -280,6 +364,23 @@ RESPONSE FORMAT: JSON hợp lệ với message, action, clinical_reasoning
             session.set_conversation_history(conversation)
             session.updated_at = datetime.utcnow()
             session.progress_percentage = progress
+
+            # Stage progression based on conversation length
+            conversation_length = len(conversation)
+            if conversation_length > 15:  # Force completion after sufficient conversation
+                session.current_stage = 7
+                session.status = 'completed'
+                session.progress_percentage = 100
+            elif conversation_length > 12:
+                session.current_stage = 6
+            elif conversation_length > 9:
+                session.current_stage = 5
+            elif conversation_length > 6:
+                session.current_stage = 4
+            elif conversation_length > 4:
+                session.current_stage = 3
+            elif conversation_length > 2:
+                session.current_stage = 2
 
             if session.current_stage > 6:
                 session.status = 'completed'
@@ -318,6 +419,31 @@ RESPONSE FORMAT: JSON hợp lệ với message, action, clinical_reasoning
 
         except Exception as e:
             return {"error": f"Lỗi xử lý: {str(e)}"}
+
+    def _search_and_store_pubmed_summary(self, session_id: str, query: str):
+        """
+        (Worker Thread) Searches PubMed and stores the summary in the session's patient_data.
+        """
+        try:
+            summary = self.web_searcher.search_pubmed(query)
+            if summary:
+                # This runs in a separate thread, so we need to be careful with DB session.
+                # For this implementation, we re-fetch the session and commit the single update.
+                session = self.get_session(session_id)
+                if session:
+                    patient_data = session.get_patient_data()
+                    patient_data['pubmed_summary'] = summary
+                    session.set_patient_data(patient_data)
+                    db.session.commit()
+        except Exception as e:
+            print(f"[THREAD ERROR] Failed to search PubMed for session {session_id}: {e}")
+            # Optionally, update status to 'failed'
+            session = self.get_session(session_id)
+            if session:
+                patient_data = session.get_patient_data()
+                patient_data['pubmed_summary'] = "failed"
+                session.set_patient_data(patient_data)
+                db.session.commit()
 
     def update_patient_data(self, patient_data: Dict, new_data: Dict):
         """Update patient data with new information"""
@@ -382,6 +508,10 @@ RESPONSE FORMAT: JSON hợp lệ với message, action, clinical_reasoning
                         if name and len(name) > 1:
                             extracted['demographics'] = {'name': name}
                             break
+            # Heuristic for single-word name reply
+            elif len(user_message.split()) == 1 and len(user_message) > 1:
+                 extracted['demographics'] = {'name': user_message.strip()}
+
 
         # Extract chief complaint (if not already set)
         current_complaint = current_data.get('chief_complaint', {}).get('main_complaint', '')
@@ -395,17 +525,26 @@ RESPONSE FORMAT: JSON hợp lệ với message, action, clinical_reasoning
         # Extract symptoms from current message
         symptoms = []
 
+        # Helper function to check for negation
+        def is_negated(symptom: str, message: str) -> bool:
+            negation_patterns = [f'không {symptom}', f'chưa {symptom}', f'không có {symptom}']
+            for pattern in negation_patterns:
+                if pattern in message:
+                    return True
+            return False
+
         # Fever patterns
         import re
-        fever_pattern = r'sốt.*?(\d+)\s*độ'
-        fever_match = re.search(fever_pattern, message_lower)
-        if fever_match:
-            symptoms.append({
-                'name': 'sốt',
-                'severity': f"{fever_match.group(1)} độ"
-            })
-        elif 'sốt' in message_lower:
-            symptoms.append({'name': 'sốt'})
+        if not is_negated('sốt', message_lower):
+            fever_pattern = r'sốt.*?(\d+)\s*độ'
+            fever_match = re.search(fever_pattern, message_lower)
+            if fever_match:
+                symptoms.append({
+                    'name': 'sốt',
+                    'severity': f"{fever_match.group(1)} độ"
+                })
+            elif 'sốt' in message_lower:
+                symptoms.append({'name': 'sốt'})
 
         # Pain patterns with more detailed location extraction
         pain_locations = {
@@ -463,15 +602,22 @@ RESPONSE FORMAT: JSON hợp lệ với message, action, clinical_reasoning
         }
 
         for symptom_key, symptom_name in other_symptoms.items():
+            if is_negated(symptom_key, message_lower):
+                continue
+
             if symptom_key in message_lower:
                 symptom_info = {'name': symptom_name}
 
                 # Look for severity modifiers
                 severity_modifiers = ['hơi', 'nhiều', 'rất', 'ít', 'nhẹ', 'nặng']
                 for modifier in severity_modifiers:
-                    if modifier in message_lower and modifier in message_lower.split(symptom_key)[0]:
-                        symptom_info['severity'] = modifier
-                        break
+                    # Check if modifier is near the symptom keyword to avoid mis-association
+                    try:
+                        if modifier in message_lower.split(symptom_key)[0].split()[-2:]:
+                             symptom_info['severity'] = modifier
+                             break
+                    except IndexError:
+                        continue
 
                 symptoms.append(symptom_info)
 

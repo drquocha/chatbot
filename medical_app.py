@@ -50,7 +50,7 @@ def index(language='vi'):
     # Get UI translations
     ui_text = language_manager.get_ui_text(language)
 
-    return render_template('medical_index_multilang.html', language=language, ui_text=ui_text)
+    return render_template('medical_index.html', language=language, ui_text=ui_text)
 
 @app.route('/start-session', methods=['POST'])
 def start_session():
